@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Crypt - Secure Messenger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-logo: #020617;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #fcfcfd;
+            --result-bg: #f5f3ff;
+            --result-border: #c4b5fd;
+            --btn-bg: #ffffff;
+            --btn-hover: #f8faff;
+            --verified-blue: #0095f6;
+            /* New Deco Palette */
+            --decoded-bg: #eef2ff;
+            --decoded-text: #4338ca;
+            --decoded-border: #818cf8;
+        }
+
+        .dark {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-logo: #ffffff;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+            --result-bg: #2e1065;
+            --result-border: #7c3aed;
+            --btn-bg: #334155;
+            --btn-hover: #475569;
+            /* Dark Mode Deco Palette */
+            --decoded-bg: #1e1b4b;
+            --decoded-text: #c7d2fe;
+            --decoded-border: #4338ca;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 800px;
+            padding: 80px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-title {
+            color: var(--text-logo);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            transition: color 0.3s ease;
+        }
+
+        .verified-icon {
+            width: 32px;
+            height: 32px;
+            color: var(--verified-blue);
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            border-radius: 32px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border-color);
+            position: relative;
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        .item-btn {
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            background: var(--btn-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            color: var(--text-main);
+        }
+
+        .item-btn:hover {
+            border-color: #6366f1;
+            background: var(--btn-hover);
+            transform: translateY(-2px);
+        }
+
+        .item-btn.active {
+            background: #6366f1;
+            color: white;
+            border-color: #4f46e5;
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.25);
+            transform: scale(1.05);
+        }
+
+        .mode-switch {
+            display: flex;
+            background: var(--bg-color);
+            padding: 8px;
+            border-radius: 20px;
+            margin-bottom: 48px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .mode-btn {
+            padding: 12px 28px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+
+        .mode-btn.active {
+            background: var(--card-bg);
+            color: #6366f1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 200px;
+            background: var(--input-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #6366f1;
+            background: var(--card-bg);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+        }
+
+        textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 30px;
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            text-align: center;
+            resize: none;
+            height: auto;
+            min-height: 60px;
+            display: block;
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.4;
+        }
+
+        .result-display {
+            background: var(--result-bg);
+            border: 2px dashed var(--result-border);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            font-size: 3.5rem;
+            cursor: pointer;
+            min-height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            overflow-wrap: anywhere;
+            word-break: break-all;
+        }
+
+        .result-display:hover {
+            background: var(--card-bg);
+            border-style: solid;
+            transform: scale(1.02);
+        }
+
+        .control-btns {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: #f1f5f9;
+            color: #6366f1;
+            border-color: #6366f1;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 12px;
+            display: block;
+            text-align: center;
+        }
+
+        /* UPDATED: Result styling for Decoded content */
+        .decoded-container {
+            margin-top: 1.5rem;
+            padding: 2.5rem;
+            background: var(--decoded-bg);
+            border: 2px solid var(--decoded-border);
+            border-radius: 32px;
+            min-height: 200px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--decoded-text);
+            word-break: break-word;
+            line-height: 1.6;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 10px 15px -3px rgba(99, 102, 241, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .decoded-container.active {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.2);
+            background: linear-gradient(to bottom right, var(--decoded-bg), var(--card-bg));
+        }
+
+        .waiting-text {
+            color: var(--text-muted);
+            opacity: 0.5;
+            font-style: italic;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body class="light">
+
+    <div class="page-wrapper">
+        <header>
+            <div class="logo-container">
+                <svg class="verified-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.5 8.5l-5.5 5.5-3-3 1.5-1.5 1.5 1.5 4-4 1.5 1.5z" fill="currentColor"/>
+                </svg>
+                <h1 class="text-5xl logo-title">Emoji Crypt</h1>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 mt-3 font-medium text-lg">Send secret messages hidden in plain sight.</p>
+        </header>
+
+        <main class="main-card">
+            <div class="control-btns">
+                <button class="icon-btn" id="themeBtn" title="Toggle Theme">
+                    <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <button class="icon-btn" id="resetBtn" title="Reset All">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                </button>
+            </div>
+
+            <div class="mode-switch">
+                <div class="mode-btn active" data-mode="encode">Encode Message</div>
+                <div class="mode-btn" data-mode="decode">Decode Message</div>
+            </div>
+
+            <!-- ENCODE VIEW -->
+            <div id="encodeView" class="space-y-12">
+                <div class="input-section">
+                    <span class="section-label">1. Secret Content</span>
+                    <div class="input-wrapper">
+                        <textarea id="secretInput" placeholder="Enter your secret message..."></textarea>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="section-label">2. Choose Cover Element</span>
+                    <div class="grid-container" id="emojiGrid"></div>
+                    <div class="grid-container mt-4" id="letterGrid"></div>
+                </div>
+
+                <div class="pt-12 border-t border-slate-100 dark:border-slate-800">
+                    <span class="section-label">3. Your Secure Result</span>
+                    <div class="result-display mt-6" id="copyResult">😊</div>
+                    <p class="text-center text-sm text-slate-400 mt-6">Click the icon above to copy it</p>
+                </div>
+            </div>
+
+            <!-- DECODE VIEW -->
+            <div id="decodeView" class="hidden space-y-12">
+                <div>
+                    <span class="section-label">Paste Encrypted Content</span>
+                    <div class="input-wrapper">
+                        <textarea id="decodeInput" placeholder="Paste the secret emoji here..."></textarea>
+                    </div>
+                </div>
+
+                <div class="pt-12 border-t border-slate-100 dark:border-slate-800">
+                    <span class="section-label">Revealed Message</span>
+                    <div id="decodedMessage" class="decoded-container">
+                        <span class="waiting-text">Waiting for input...</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="text-center pb-12 text-slate-400 text-sm font-medium">
+            <p>End-to-End Visual Encryption Protocol</p>
+        </footer>
+    </div>
+
+    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-2xl shadow-2xl text-base font-semibold opacity-0 transition-all pointer-events-none z-50">
+        Copied to clipboard!
+    </div>
+
+    <script>
+        const B0 = '\u200B';
+        const B1 = '\u200C';
+        const DELIM = '\u200D';
+
+        let activeCover = '😊';
+        const emojis = ['😊','😂','😍','😎','🤔','👍','👎','👏','😅','🤝','🎉','🎂','🍕','🌈','☀️','🌙','🔥','💯','🚀','👀','💀','🥺','✨','💎'];
+        const letters = "abcdefghijklmnopqrstuvwxyz".split("");
+
+        function init() {
+            const eGrid = document.getElementById('emojiGrid');
+            const lGrid = document.getElementById('letterGrid');
+
+            emojis.forEach(e => {
+                const btn = createBtn(e);
+                if(e === '😊') btn.classList.add('active');
+                eGrid.appendChild(btn);
+            });
+
+            letters.forEach(l => {
+                lGrid.appendChild(createBtn(l));
+            });
+
+            setupListeners();
+            loadTheme();
+            autoExpand(document.getElementById('secretInput'));
+            autoExpand(document.getElementById('decodeInput'));
+        }
+
+        function createBtn(val) {
+            const btn = document.createElement('div');
+            btn.className = 'item-btn';
+            btn.textContent = val;
+            btn.onclick = () => {
+                activeCover = val;
+                document.querySelectorAll('.item-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                updateEncode();
+            };
+            return btn;
+        }
+
+        function autoExpand(field) {
+            field.addEventListener('input', function() {
+                this.style.height = 'inherit';
+                const height = this.scrollHeight;
+                this.style.height = height + 'px';
+            });
+        }
+
+        function setupListeners() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const mode = btn.dataset.mode;
+                    document.getElementById('encodeView').classList.toggle('hidden', mode !== 'encode');
+                    document.getElementById('decodeView').classList.toggle('hidden', mode !== 'decode');
+                };
+            });
+
+            document.getElementById('secretInput').oninput = updateEncode;
+            document.getElementById('decodeInput').oninput = updateDecode;
+
+            document.getElementById('copyResult').onclick = function() {
+                const text = this.textContent;
+                const dummy = document.createElement('textarea');
+                document.body.appendChild(dummy);
+                dummy.value = text;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+
+                const toast = document.getElementById('toast');
+                toast.style.opacity = '1';
+                toast.style.transform = 'translate(-50%, -10px)';
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translate(-50%, 0)';
+                }, 2000);
+            };
+
+            document.getElementById('resetBtn').onclick = () => {
+                document.getElementById('secretInput').value = '';
+                document.getElementById('decodeInput').value = '';
+                activeCover = '😊';
+                document.querySelectorAll('.item-btn').forEach(b => {
+                    b.classList.toggle('active', b.textContent === '😊');
+                });
+                updateEncode();
+                updateDecode();
+            };
+
+            document.getElementById('themeBtn').onclick = toggleTheme;
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark');
+            document.body.classList.toggle('light', !isDark);
+            const icon = document.getElementById('themeIcon');
+            icon.innerHTML = isDark
+                ? '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>'
+                : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+            localStorage.setItem('emojiCryptTheme', isDark ? 'dark' : 'light');
+        }
+
+        function loadTheme() {
+            const saved = localStorage.getItem('emojiCryptTheme');
+            if (saved === 'dark') toggleTheme();
+        }
+
+        function updateEncode() {
+            const text = document.getElementById('secretInput').value;
+            const hidden = text.split('').map(char => {
+                return char.charCodeAt(0).toString(2).padStart(16, '0')
+                    .split('').map(bit => bit === '1' ? B1 : B0).join('');
+            }).join(DELIM);
+            document.getElementById('copyResult').textContent = activeCover + hidden;
+        }
+
+        function updateDecode() {
+            const val = document.getElementById('decodeInput').value;
+            const output = document.getElementById('decodedMessage');
+            const hiddenChars = val.split('').filter(c => c === B0 || c === B1 || c === DELIM).join('');
+
+            if (!hiddenChars) {
+                output.classList.remove('active');
+                output.innerHTML = '<span class="waiting-text">Waiting for input...</span>';
+                return;
+            }
+
+            try {
+                const decoded = hiddenChars.split(DELIM).map(block => {
+                    const binary = block.split('').map(c => c === B1 ? '1' : '0').join('');
+                    if (!binary) return '';
+                    return String.fromCharCode(parseInt(binary, 2));
+                }).join('');
+
+                if (decoded) {
+                    output.classList.add('active');
+                    output.textContent = decoded;
+                } else {
+                    output.classList.remove('active');
+                    output.innerHTML = '<span class="waiting-text">Empty hidden content found.</span>';
+                }
+            } catch (e) {
+                output.classList.remove('active');
+                output.textContent = "Format Error: Unrecognized encryption.";
+            }
+        }
+
+        init();
+        updateEncode();
+    </script>
+</body>
+</html>
